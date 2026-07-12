@@ -129,7 +129,13 @@ function App() {
     const formatTime = (isoString) => {
         try {
             const date = new Date(isoString);
-            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            if (isNaN(date.getTime())) return "";
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const displayHours = hours % 12 || 12;
+            const displayMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            return `${displayHours}:${displayMinutes} ${ampm}`;
         } catch (e) {
             return "";
         }
