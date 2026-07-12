@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { Send, MessageSquare, LogOut, Hash, User, Activity } from "lucide-react";
 
-const BACKEND_URL = "http://localhost:5001";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://chat-application-kxio.onrender.com";
 
 const ROOMS = [
     { id: "general", name: "General", desc: "Global general chat for everyone" },
@@ -19,14 +19,12 @@ function App() {
     const [inputText, setInputText] = useState("");
     const [connected, setConnected] = useState(false);
 
-    // Form state for join screen
     const [tempUsername, setTempUsername] = useState(username);
     const [tempRoom, setTempRoom] = useState(room);
 
     const socketRef = useRef(null);
     const messagesEndRef = useRef(null);
 
-    // Auto-scroll to bottom on new messages
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -37,11 +35,9 @@ function App() {
         }
     }, [messages, isLoggedIn]);
 
-    // Manage socket connection and message history
     useEffect(() => {
         if (!isLoggedIn || !username) return;
 
-        // Fetch initial room message history via REST API
         const fetchHistory = async () => {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/messages?room=${room}`);
@@ -56,7 +52,6 @@ function App() {
 
         fetchHistory();
 
-        // Connect to Socket.io server
         socketRef.current = io(BACKEND_URL);
 
         socketRef.current.on("connect", () => {
@@ -71,14 +66,12 @@ function App() {
         socketRef.current.on("message", (msg) => {
             if (msg.room === room) {
                 setMessages((prev) => {
-                    // Prevent duplicate messages
                     if (prev.some((m) => m.id === msg.id)) return prev;
                     return [...prev, msg];
                 });
             }
         });
 
-        // Handle socket room updates
         socketRef.current.emit("joinRoom", room);
 
         return () => {
@@ -121,7 +114,8 @@ function App() {
                 room: room
             });
         } else {
-            // Fallback to REST API if Socket is disconnected
+
+
             fetch(`${BACKEND_URL}/api/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -164,6 +158,7 @@ function App() {
                             maxLength={15}
                             autoComplete="off"
                         />
+
                     </div>
                     <div className="form-group">
                         <label htmlFor="room">Choose Room</label>
@@ -190,7 +185,6 @@ function App() {
 
     return (
         <div className="chat-dashboard glass">
-            {/* Sidebar */}
             <div className="sidebar">
                 <div className="sidebar-header">
                     <MessageSquare size={24} className="brand-icon" />
@@ -233,7 +227,6 @@ function App() {
                 </div>
             </div>
 
-            {/* Chat Area */}
             <div className="chat-window">
                 <div className="chat-header">
                     <div className="chat-header-info">

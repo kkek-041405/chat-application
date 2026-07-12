@@ -6,7 +6,6 @@ import Message from "./models/Message.js";
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "messages.json");
 
-// Ensure local fallback store is initialized
 function initializeLocalStore() {
     try {
         if (!fs.existsSync(DATA_DIR)) {
@@ -46,12 +45,6 @@ function isDbConnected() {
     return mongoose.connection.readyState === 1;
 }
 
-/**
- * Retrieve the latest messages for a room, sorted chronologically.
- * @param {string} room 
- * @param {number} limit 
- * @returns {Promise<Array>}
- */
 export async function getMessages(room = "general", limit = 100) {
     if (isDbConnected()) {
         try {
@@ -71,18 +64,13 @@ export async function getMessages(room = "general", limit = 100) {
         }
     }
 
-    // Fallback: File-based persistence
     console.log(`[Backup Store] Fetching history for room: ${room}`);
     const messages = loadLocalMessages();
     const filtered = messages.filter((msg) => msg.room === room);
     return filtered.slice(-limit);
 }
 
-/**
- * Save a new message.
- * @param {Object} messageData 
- * @returns {Promise<Object>}
- */
+
 export async function saveMessage({ sender, text, room = "general" }) {
     if (!sender || !text) {
         throw new Error("Sender and text are required fields");
@@ -104,7 +92,6 @@ export async function saveMessage({ sender, text, room = "general" }) {
         }
     }
 
-    // Fallback: File-based persistence
     console.log(`[Backup Store] Saving message for room: ${room}`);
     const messages = loadLocalMessages();
     const newMessage = {

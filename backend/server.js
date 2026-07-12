@@ -39,7 +39,6 @@ app.post("/api/messages", async (req, res) => {
 
         const newMessage = await saveMessage({ sender, text, room });
 
-        // Broadcast to clients in the room
         io.to(newMessage.room).emit("message", newMessage);
 
         return res.status(201).json(newMessage);
@@ -63,7 +62,6 @@ app.get("/api/messages", async (req, res) => {
 io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    // Join a specific chat room
     socket.on("joinRoom", (room) => {
         socket.join(room);
         console.log(`User ${socket.id} joined room: ${room}`);
@@ -80,7 +78,6 @@ io.on("connection", (socket) => {
 
             const newMessage = await saveMessage({ sender, text, room });
 
-            // Broadcast to everyone in the room (including sender)
             io.to(newMessage.room).emit("message", newMessage);
         } catch (error) {
             console.error("Socket sendMessage error:", error);

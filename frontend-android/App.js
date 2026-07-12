@@ -42,32 +42,27 @@ export default function App() {
   const [connected, setConnected] = useState(false);
   const [backendUrl, setBackendUrl] = useState(DEFAULT_BACKEND_URL);
 
-  // Form states
   const [tempUsername, setTempUsername] = useState("");
   const [tempRoom, setTempRoom] = useState("general");
   const [tempBackendUrl, setTempBackendUrl] = useState(DEFAULT_BACKEND_URL);
-  
-  // Custom picker modal
+
   const [isRoomSelectOpen, setIsRoomSelectOpen] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Drawer Animation
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-280)).current;
 
-  // Pulse animation for empty state
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const socketRef = useRef(null);
   const flatListRef = useRef(null);
 
-  // Load saved credentials
   useEffect(() => {
     const initApp = async () => {
       try {
         const storedUsername = await AsyncStorage.getItem("chat_username");
         const storedBackendUrl = await AsyncStorage.getItem("chat_backend_url");
-        
+
         if (storedUsername) {
           setUsername(storedUsername);
           setTempUsername(storedUsername);
@@ -86,7 +81,6 @@ export default function App() {
     initApp();
   }, []);
 
-  // Pulse animation controller
   useEffect(() => {
     if (messages.length === 0 && isLoggedIn) {
       Animated.loop(
@@ -108,7 +102,6 @@ export default function App() {
     }
   }, [messages, isLoggedIn]);
 
-  // Drawer Animations
   const openDrawer = () => {
     setIsDrawerOpen(true);
     Animated.timing(slideAnim, {
@@ -128,11 +121,9 @@ export default function App() {
     });
   };
 
-  // Manage API Socket connection
   useEffect(() => {
     if (!isLoggedIn || !username) return;
 
-    // Fetch message history
     const fetchHistory = async () => {
       try {
         const res = await fetch(`${backendUrl}/api/messages?room=${room}`);
@@ -147,7 +138,6 @@ export default function App() {
 
     fetchHistory();
 
-    // Connect socket
     socketRef.current = io(backendUrl);
 
     socketRef.current.on("connect", () => {
@@ -182,7 +172,7 @@ export default function App() {
     try {
       await AsyncStorage.setItem("chat_username", trimmed);
       await AsyncStorage.setItem("chat_backend_url", tempBackendUrl);
-      
+
       setUsername(trimmed);
       setBackendUrl(tempBackendUrl);
       setRoom(tempRoom);
@@ -218,7 +208,7 @@ export default function App() {
         room: room
       });
     } else {
-      // REST API fallback
+
       fetch(`${backendUrl}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -285,7 +275,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Custom dropdown picker modal */}
             <Modal visible={isRoomSelectOpen} transparent={true} animationType="fade">
               <TouchableWithoutFeedback onPress={() => setIsRoomSelectOpen(false)}>
                 <View style={styles.modalOverlay}>
@@ -320,7 +309,6 @@ export default function App() {
               </TouchableWithoutFeedback>
             </Modal>
 
-            {/* Advanced Toggle */}
             <TouchableOpacity
               style={styles.advancedToggle}
               onPress={() => setShowAdvanced(!showAdvanced)}
@@ -492,7 +480,7 @@ export default function App() {
                 return (
                   <View style={[styles.messageWrapper, isSelf ? styles.messageSelf : styles.messageOther]}>
                     {!isSelf && <Text style={styles.messageSender}>{item.sender}</Text>}
-                    
+
                     {isSelf ? (
                       <LinearGradient
                         colors={["#8b5cf6", "#7c3aed"]}
@@ -554,7 +542,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  // Join Login Screen
+
   joinContainer: {
     flex: 1,
     backgroundColor: "#0a0f1d",
@@ -667,7 +655,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-  // Modal Selector styles
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
@@ -726,7 +713,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#94a3b8",
   },
-  // Header bar
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -736,7 +722,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255, 255, 255, 0.08)",
     paddingHorizontal: 16,
     paddingVertical: 14,
-    paddingTop: Platform.OS === "android" ? 44 : 14, // spacing for android statusbar
+    paddingTop: Platform.OS === "android" ? 44 : 14,
   },
   headerLeft: {
     flexDirection: "row",
@@ -797,7 +783,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
-  // Custom Sidebar Drawer
   drawerOverlayContainer: {
     position: "absolute",
     top: 0,
@@ -945,7 +930,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 6,
   },
-  // Chat viewport
   chatArea: {
     flex: 1,
     backgroundColor: "rgba(15, 23, 42, 0.3)",
@@ -1025,7 +1009,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 4,
   },
-  // Bottom Input
   inputArea: {
     paddingHorizontal: 16,
     paddingVertical: 12,
